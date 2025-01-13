@@ -1,0 +1,45 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
+
+stages:
+  - test
+  - visualize
+
+variables:
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+
+before_script:
+  - sed -i 's/\r$//' mvnw
+  - chmod +x mvnw
+
+test:
+  image: eclipse-temurin:17
+  stage: test
+  script:
+    - ./mvnw $MAVEN_CLI_OPTS test 
+    - ./mvnw jacoco:report
+    - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print covered, "/", instructions, " instructions covered"; if (instructions != 0) {print 100*covered/instructions, "% covered"} else {print "100 % covered"} }' target/site/jacoco/jacoco.csv
+  coverage: '/\d+(?:\.\d+)? % covered/'
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+        - target/failsafe-reports/TEST-*.xml
+    paths:
+      - target/site/jacoco/jacoco.xml
+
+visualize:
+  image: haynes/jacoco2cobertura:latest
+  stage: visualize
+  needs: ["test"]
+  script:
+    - curl -o ./source2filename.py https://gitlab.com/haynes/jacoco2cobertura/-/raw/main/source2filename.py
+    - curl -o ./cover2cover.py https://gitlab.com/haynes/jacoco2cobertura/-/raw/main/cover2cover.py
+    - python3 ./cover2cover.py target/site/jacoco/jacoco.xml $CI_PROJECT_DIR/src/main/java/ > target/site/cobertura.xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: target/site/cobertura.xml
