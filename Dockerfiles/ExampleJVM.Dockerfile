@@ -21,4 +21,4 @@ ADD ./apm/elastic-apm-agent.jar /usr/local/apm/elastic-apm-agent.jar
 
 #ENTRYPOINT java -jar /app/example.jar
 #ENTRYPOINT ["java","-javaagent:/usr/local/newrelic/newrelic.jar","-jar","/app/example.jar"]
-ENTRYPOINT ["java","-javaagent:/usr/local/apm/elastic-apm-agent.jar -Delastic.apm.service_name=java-testing-apm -Delastic.apm.server_urls=http://10.110.10.15:8200 -Delastic.apm.secret_token=secrettokengoeshere -Delastic.apm.environment=production","-jar","/app/example.jar"]
+ENTRYPOINT ["java","-javaagent:/usr/local/apm/elastic-apm-agent.jar","-Delastic.apm.service_name=java-testing-apm","-Delastic.apm.server_urls=http://10.110.10.15:8200","-Delastic.apm.secret_token=secrettokengoeshere","-Delastic.apm.environment=production","-jar","/app/example.jar"]
