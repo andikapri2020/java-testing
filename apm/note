@@ -1,0 +1,9 @@
+java -javaagent:/path/to/elastic-apm-agent-<version>.jar \
+-Delastic.apm.service_name=my-application \
+-Delastic.apm.server_urls=http://localhost:8200 \
+-Delastic.apm.secret_token= \
+-Delastic.apm.environment=production \
+-Delastic.apm.application_packages=org.example \
+-jar my-application.jar
+
+-Delastic.apm.service_name=my-application -Delastic.apm.server_urls=http://10.110.10.15:8200 -Delastic.apm.secret_token=secrettokengoeshere -Delastic.apm.environment=production
